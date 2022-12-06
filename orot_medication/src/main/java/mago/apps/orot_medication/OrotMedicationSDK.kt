@@ -4,18 +4,19 @@ import android.util.Log
 import com.google.gson.Gson
 import mago.apps.orot_medication.interfaces.IOrotMedicationSDK
 import mago.apps.orot_medication.interfaces.MedicationStateListener
-import mago.apps.orot_medication.model.MessageProtocol
-import mago.apps.orot_medication.model.State
+import mago.apps.orot_medication.model.*
 import okhttp3.*
 
 class OrotMedicationSDK : IOrotMedicationSDK {
 
+    val TAG: String = "OrotMedicationSDK"
     private val url: String = "ws://demo-health-stream.mago52.com/ws/chat"
     private var request: Request? = null
     private var client: OkHttpClient? = null
     private var webSocket: WebSocket? = null
     private var medicationStateListener: MedicationStateListener? = null
 
+    /** 서버에 연결한다. */
     override fun connectServer() {
 
         if (medicationStateListener == null) {
@@ -41,16 +42,17 @@ class OrotMedicationSDK : IOrotMedicationSDK {
 
                     override fun onMessage(webSocket: WebSocket, text: String) {
                         super.onMessage(webSocket, text)
-
                         Log.w(TAG, "onMessage: $text")
                         try {
                             val receivedMsg: MessageProtocol =
                                 Gson().fromJson(text, MessageProtocol::class.java)
                             Log.w(TAG, "onMessage: $receivedMsg")
+                            if (receivedMsg.header.protocol_id == "DEVICE_MEASUREMENT_DELIVERY") {
+                                medicationStateListener?.onState(State.ALLOWED_TRANSMISSION, text)
+                            }
                         } catch (e: Exception) {
                             Log.e(TAG, "onMessage: ${e.message}")
                         }
-                        medicationStateListener?.onState(State.CONNECTED, text)
                     }
 
                     override fun onFailure(
@@ -71,10 +73,12 @@ class OrotMedicationSDK : IOrotMedicationSDK {
         }
     }
 
+    /** 서버상태를 확인하기 위해 리스너 설정을 한다. */
     override fun setListener(listener: MedicationStateListener) {
         medicationStateListener = listener
     }
 
+    /** 서버의 연결을 닫는다. */
     override fun closeServer() {
         try {
             webSocket?.cancel()
@@ -86,9 +90,21 @@ class OrotMedicationSDK : IOrotMedicationSDK {
         }
     }
 
-    override fun sendMedicalInfo() {
+    /** 서버로 의료장비에서 측정된 데이터를 보낸다. */
+    override fun sendMedicalInfo(bloodPressureSystolic: Int, glucose: Int) {
         try {
-//            webSocket.send()
+            val msg = MessageProtocol(
+                header = HeaderInfo(protocol_id = "DEVICE_MEASUREMENT_ENTRY_ACK"),
+                body = BodyInfo(measurement = MeasurementInfo(bloodPressureSystolic, glucose))
+            )
+            val msg1 = MessageProtocol(
+                header = HeaderInfo(protocol_id = "DEVICE_MEASUREMENT_ENTRY_ACK", device = "Watch"),
+                body = BodyInfo(measurement = MeasurementInfo(bloodPressureSystolic, glucose))
+            )
+            Log.w(TAG, "sendMedicalInfo: ${Gson().toJson(msg)}")
+            Log.w(TAG, "sendMedicalInfo: ${Gson().toJson(msg1)}")
+            webSocket?.send(Gson().toJson(msg))
+            webSocket?.send(Gson().toJson(msg1))
         } catch (e: Exception) {
             medicationStateListener?.onState(State.ERROR, e.message.toString())
         }
