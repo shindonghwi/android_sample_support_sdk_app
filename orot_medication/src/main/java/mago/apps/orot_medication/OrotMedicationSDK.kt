@@ -97,14 +97,8 @@ class OrotMedicationSDK : IOrotMedicationSDK {
                 header = HeaderInfo(protocol_id = "DEVICE_MEASUREMENT_ENTRY_ACK"),
                 body = BodyInfo(measurement = MeasurementInfo(bloodPressureSystolic, glucose))
             )
-            val msg1 = MessageProtocol(
-                header = HeaderInfo(protocol_id = "DEVICE_MEASUREMENT_ENTRY_ACK", device = "Watch"),
-                body = BodyInfo(measurement = MeasurementInfo(bloodPressureSystolic, glucose))
-            )
             Log.w(TAG, "sendMedicalInfo: ${Gson().toJson(msg)}")
-            Log.w(TAG, "sendMedicalInfo: ${Gson().toJson(msg1)}")
             webSocket?.send(Gson().toJson(msg))
-            webSocket?.send(Gson().toJson(msg1))
         } catch (e: Exception) {
             medicationStateListener?.onState(State.ERROR, e.message.toString())
         }
