@@ -57,15 +57,9 @@ afterEvaluate {
         publications {
             release(MavenPublication) {
                 from components.release
-                groupId = 'orot.apps.sdk'
+                groupId = 'com.orot.sdks'
                 artifactId = 'medication'
-                version = '0.0.91'
-            }
-            debug(MavenPublication) {
-                from components.debug
-                groupId = 'orot.apps.sdk'
-                artifactId = 'medication'
-                version = '0.0.91'
+                version = '0.0.92'
             }
         }
     }

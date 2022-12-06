@@ -3,6 +3,10 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        maven {
+            url "https://jitpack.io"
+            credentials { username "jp_bprpjm2peaqvu3t520kn8to3v" }
+        }
     }
 }
 dependencyResolutionManagement {
