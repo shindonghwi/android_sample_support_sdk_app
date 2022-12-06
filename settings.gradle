@@ -16,6 +16,29 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
+
+
 rootProject.name = "MedicalDeviceOrotSDK"
 include ':app'
 include ':orot_medication'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

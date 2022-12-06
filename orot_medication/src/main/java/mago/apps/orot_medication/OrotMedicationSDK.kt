@@ -47,7 +47,7 @@ class OrotMedicationSDK : IOrotMedicationSDK {
                             val receivedMsg: MessageProtocol =
                                 Gson().fromJson(text, MessageProtocol::class.java)
                             Log.w(TAG, "onMessage: $receivedMsg")
-                            if (receivedMsg.header.protocol_id == "DEVICE_MEASUREMENT_DELIVERY") {
+                            if (receivedMsg.header.protocol_id == "DEVICE_MEASUREMENT_ENTRY_REQ") {
                                 medicationStateListener?.onState(State.ALLOWED_TRANSMISSION, text)
                             }
                         } catch (e: Exception) {
